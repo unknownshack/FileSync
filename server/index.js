@@ -1,123 +1,55 @@
 const express = require('express')
 const app = express();
-/*const mssql = require('mssql')
 
-const connection = mssql.connect({
-    host:'localhost',
-    user:'groot',
-    password:'groot',
-    database:'Links'
-})
-
-const request = mssql.Request();
-
-request.query('INSERT INTO tLinks(webLinks) VALUES (\'a link\')')*/
-
-/*
-app.get('/', (req, res) => {
-
-    let sql = require("mssql");
-
-    // config for your database
-    let config = {
-        user: 'groot',
-        password: 'groot',
-        server: 'localhost',
-        database: 'Links'
-    };
-
-    // connect to your database
-    sql.connect(config, (err)=> {
-
-        if (err) console.log(err);
-
-        // create Request object
-        let request = new sql.Request();
-
-        // query to the database and get the records
-        request.query("INSERT INTO tLinks(webLinks) VALUES ('a link')", (er, recordset)=> {
-
-            if (er) console.log(er)
-
-            // send records as a response
-            res.send(recordset);
-
-        });
-    });
-});
-*/
-
-
-
-const mssql = require('tedious').Connection;
-
-const db = {
-    server: 'localhost',  //update me
+var Connection = require('tedious').Connection;
+var config = {
+    server: 'your_server.database.windows.net',  //update me
     authentication: {
         type: 'default',
         options: {
-            userName: 'groot', //update me
-            password: 'groot'  //update me
+            userName: 'your_username', //update me
+            password: 'your_password'  //update me
         }
     },
     options: {
         // If you are on Microsoft Azure, you need encryption:
         encrypt: true,
-        database: 'Links'  //update me
+        database: 'your_database'  //update me
     }
-
-}
-
-const connection = new mssql(db)
-
+};
+var connection = new Connection(config);
 connection.on('connect', function(err) {
     // If no error, then good to proceed.
     console.log("Connected");
+    executeStatement1();
 });
 
-let Request = require('tedious').Request;
-let TYPES = require('tedious').TYPES;
+connection.connect();
 
-function executeStatement() {
-    let request = new Request("SELECT C;", (err) =>{
+var Request = require('tedious').Request
+var TYPES = require('tedious').TYPES;
+
+function executeStatement1() {
+    request = new Request("INSERT into SiteData(IP address, site ) values (@ip , @site));", function(err) {
         if (err) {
             console.log(err);}
     });
-    var result = "";
+    request.addParameter('ip', TYPES.NVarChar,'SQL Server Express 2014');
+    request.addParameter('site', TYPES.NVarChar , 'SQLEXPRESS2014');
+
     request.on('row', function(columns) {
         columns.forEach(function(column) {
             if (column.value === null) {
                 console.log('NULL');
             } else {
-                result+= column.value + " ";
+                console.log("Product id of inserted item is " + column.value);
             }
         });
-        console.log(result);
-        result ="";
-    });
-
-    request.on('done', (rowCount, more)=> {
-        console.log(rowCount + ' rows returned');
     });
 
     // Close the connection after the final event emitted by the request, after the callback passes
-    request.on("requestCompleted", (rowCount, more)=> {
+    request.on("requestCompleted", function (rowCount, more) {
         connection.close();
     });
     connection.execSql(request);
 }
-
-
-connection.connect();
-
-/*db.query("INSERT INTO tLinks(webLinks) VALUES ('a LINK')", function (err, recordset) {
-
-    if (err) console.log(err)
-
-    // send records as a response
-    res.send(recordset);
-
-});*/
-app.listen(3001, ()=> {
-    console.log('Server is running..');
-});
