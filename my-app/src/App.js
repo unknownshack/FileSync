@@ -7,7 +7,7 @@ import Axios from "axios";
 function App(){
     const [ip, setIp] = useState("")
     const [site, setSite] = useState("")
-    const [ipsiteList, setIpSiteLite] = useState([])
+    const [ipSiteList, setIpSiteList] = useState([])
 
     const block = () => {
         console.log(ip)
@@ -18,7 +18,7 @@ function App(){
     const show = () => {
         console.log(ip)
         Axios.get("http://localhost:3001/show").then((response) => {
-            console.log(response)
+            setIpSiteList(response.data)
         })
     }
 
@@ -45,6 +45,13 @@ function App(){
             <div>
                 <button onClick={show}> Show </button>
             </div>
+            {console.log(ipSiteList)}
+            {ipSiteList.map((val,key)=>{
+
+                return <div key={key}> {val.ip} {val.site} </div>
+            })
+            }
+
 
         </div>
     );

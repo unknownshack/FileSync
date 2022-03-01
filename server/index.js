@@ -34,14 +34,12 @@ connection.on('connect', (err) => {
 
 
 //opening a port for api
+//=================================== GET REQUEST===================================================
+connection.connect()
 
-try {
-    console.log("Connected")
-    connection.connect();
-} catch (err) {
-    res.send(err)
-}
+
 app.get('/show', (req, res) => {
+
     console.log("data")
     let request = new Request("Select * from SiteData", (err) => {
         if (err) {
@@ -49,37 +47,37 @@ app.get('/show', (req, res) => {
         }
 
     })
-    let result = "";
+    let result = [];
     request.on('row', function (columns) {
-        columns.forEach(function (column) {
+        let siteIp = {}
+        columns.forEach(function (column,index) {
+
             if (column.value === null) {
                 console.log('NULL');
             } else {
-                result += column.value + " ";
+
+                siteIp[column.metadata.colName]=column.value
             }
         });
-        console.log(result);
-        result = "";
-    });
-    request.on('done', function (rowCount, more) {
-        console.log(rowCount + ' rows returned');
-    });
 
+        result.push(siteIp)
+    });
 
     request.on("requestCompleted", function (rowCount, more) {
         console.log("Disconnected")
-        /* connection.close();*/
+        res.send(result)
+         /*connection.close();*/
     });
     connection.execSql(request)
 
 
 })
+//========================================================================================================
 
+//==========================================POST REQUEST START==================================================
 //will be triggered when '/create' is used in url like "https://3001/create"
 app.post("/create", (req, res) => {
     console.log("Here")
-    console.log(req)
-    console.log(req.body)
     const ip = req.body.ip
     const site = req.body.site
     console.log("Before request")
@@ -92,26 +90,47 @@ app.post("/create", (req, res) => {
     request.addParameter('site', TYPES.VarChar, site);
     console.log("Before writing file")
     console.log(ip)
-    fs.writeFile(config.filepath, ip + site, (err) => {
-        if (err) return console.log(err)
-        console.log('Log inserted')
 
-    });
-    console.log("after writefile")
+    request.on('row',(columns)=>{
 
-    // Close the connection after the final event emitted by the request, after the callback passes
-    request.on("requestCompleted", function (rowCount, more) {
-        console.log("pasa")
-        /*connection.close();*/
+        columns.forEach((column)=>{
+            if(column.value==NULL)
+                console.log("NULL")
+            else console.log(column.value + "is inserted")
+        })
     })
     console.log("After request on")
-
     connection.execSql(request);
-    res.send('sent')
+
+    let content = ip + " "+ site + "\r\n"
+
+    fs.access(config.filepath,(err) => {
+        if (err) {
+            fs.writeFile(config.filepath, content , (err) => {
+                if (err) return console.log(err)
+                console.log("after writefile")
+            })
+        } else {
+            fs.appendFile(config.filepath, content, (err) => {
+                if (err) return console.log(err)
+                else console.log('Appended')
+            })
+        }
+
+    });
+
+    // Close the connection after the final event emitted by the request, after the callback passes
+  /*  request.on("requestCompleted", function (rowCount, more) {
+        /!*connection.close();*!/
+    })*/
+
+
 
 })
+//============================================POST REQUEST CLOSED============================================
 
-
+//=========================================LISTENING PORT FOR BACKEND========================================
 app.listen(3001, () => {
     console.log("This port is listening")
 })
+//===========================================================================================================
