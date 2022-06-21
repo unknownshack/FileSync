@@ -23,7 +23,12 @@ module.exports = dbconnection = {
         let connection = new Connection(conf);
 
         connection.on('connect', (err) => {
-            console.log("Connected");
+            if (err)
+                console.log(err)
+
+            else
+                console.log("connected")
+
         });
 
         connection.connect()
