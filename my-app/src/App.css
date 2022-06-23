@@ -17,14 +17,52 @@
 .btn:hover{
   border-color: rgba(255,255,255,1);
 }
-.txt{
+.txt {
   font-size: 20px;
 }
-table, th, td {
-  width:200px;
-  margin: 15px 0 0px 40%;
-  border: 2px solid red;
-  padding:10px;
-  text-align: center;
-  font-size: 25px;
+table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table td, table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+table tr:nth-child(even){background-color: #E5CE8C;}
+
+table tr:hover {background-color: #92DAE8;}
+
+table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+
+.searchBar{
+  text-align: right;
+  position: center;
+  padding-right: 5%;
+
+}
+.searchInp{
+  font-size: 20px;
+
+
+}
+.searchBtn:hover{
+  background: darkturquoise;
+
+}
+.searchBtn{
+margin-top: 20px;
+  height:30px
+}
+.searchIcon {
+  height:10px;
+  width:20px;
 }
