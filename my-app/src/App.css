@@ -58,11 +58,21 @@ table th {
   background: darkturquoise;
 
 }
-.searchBtn{
-margin-top: 20px;
-  height:30px
+#searchBtn{
+
+
 }
-.searchIcon {
-  height:10px;
-  width:20px;
+.dataResult{
+  margin-left:70%;
+  margin-top: 5px;
+  background-color: antiquewhite;
+  color: black;
+  height: 200px;
+  width:300px;
+  overflow: hidden;
+  overflow-y: auto;
+  text-align: left;
+  z-index: 2;
+  position: absolute;
+
 }

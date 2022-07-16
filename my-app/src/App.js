@@ -36,9 +36,9 @@ function App() {
     }
     const Delete = (id) => {
         Axios.delete(`http://localhost:3001/delete/${id}`).then((response) => {
-           /* setIpSiteList(ipSiteList.filter((val) => {
-                return val.id != id
-            }))*/
+            /* setIpSiteList(ipSiteList.filter((val) => {
+                 return val.id != id
+             }))*/
             setIpSiteList(response.data)
         })
     }
@@ -50,47 +50,74 @@ function App() {
                     <th>Host name</th>
                     <th>Want to Update or Delete?</th>
                 </tr>
-            )}
-        const handleChange = (event) => {
-            const searchWord = event.target.value
-            Axios.get("http://localhost:3001/show").then((response) => {
+            )
+    }
+
+
+    const handleChange = (event) => {
+        const searchWord = event.target.value
+        var select = document.getElementById('language');
+        var value = select.options[select.selectedIndex].value;
+        console.log(value);
+        if (searchWord.length == 0){
+            setFilterData([])
+        }
+        else
+        {
+            Axios.get(`http://localhost:3001/showSearch`, {
+                params: {
+                    value: value,
+                    searchWord: searchWord
+                }
+            }).then((response) => {
                 setFilterData(response.data)
+
 
             })
 
-
         }
 
+
+    }
 
 
     return (
         <div>
             <div className="change">
                 <div className="searchBar">
-                    <input type="text" placeholder="Search.." name="search" className="searchInp"
-                           onChange={handleChange}/>
-                    <button className="searchBtn">
-                        <SearchIcon className="searchIcon"/>
-                    </button>
+
 
                 </div>
-                { setFilterData.length != 0 && (
-                    <div className = "searchBar">
-
-                        {filterData.map((value, key) => {
-                            return (<p> {value.site} </p>
-                            )
-                        })
-                        }
-                    </div>
-                )
-                }
-
 
 
                 <h1>DNS Resolver</h1>
 
                 <div>
+                    <div className="searchBar">
+                        <select id="language">
+                            <option value="ip">ip</option>
+                            <option value="site">site</option>
+                        </select>
+
+                        <input type="text" placeholder="Search.." name="search" className="searchInp"
+                               onChange={handleChange}/>
+                        <button id="searchBtn">
+                            <SearchIcon />
+                        </button>
+
+                        {filterData.length != 0 && (
+                            <div className="dataResult">
+                                {filterData.map((value, key) => {
+                                    return (<p> {value.site} </p>
+                                    )
+                                })
+                                }
+                            </div>
+                        )
+                        }
+
+                    </div>
+
                     <label>IP address</label>
                     <input
                         type="text"

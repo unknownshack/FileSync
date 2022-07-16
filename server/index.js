@@ -18,99 +18,135 @@ console.log("before insertionroutes")
 //will be triggered when '/create' is used in url like "https://3001/create"
 app.post("/create", (req, res) => {
 
-        console.log("Here")
+    console.log("Here")
 
-        const ip = req.body.ip
-        const site = req.body.site
-        console.log("Before request")
-        let request = new Request("INSERT into SiteData(ip, site) values (@ip , @site);", (err) => {
-            if (err) {
-                console.log(err);
-            }
-        });
-        request.addParameter('ip', TYPES.VarChar, ip);
-        request.addParameter('site', TYPES.VarChar, site);
-        console.log("Before writing file")
-
-        request.on('row', (columns) => {
-
-            columns.forEach((column) => {
-                if (column.value == NULL)
-                    console.log("NULL")
-                else console.log(column.value + "is inserted")
-            })
-        })
-        console.log("After request on")
-        connection.execSql(request);
-        let content = ip + " " + site + "\r\n"
-        fs.access(config.filepath, (err) => {
-
-            if (err) {
-                fs.writeFile(config.filepath, content, (err) => {
-                    if (err) return console.log(err)
-                    console.log("after writefile")
-                })
-            } else {
-                fs.appendFile(config.filepath, content, (err) => {
-                    if (err) return console.log(err)
-                    else console.log('Appended')
-                })
-            }
-
-        })
-
-    })
-//============================================POST REQUEST CLOSED============================================
-app.get('/searchShow', (req,res)=>
-{
-    let request = new Request('Select * from SiteData', (err)=>{
-        if (err)
-            console.log(err)
-
-    })
-    let result = [];
-    request.on('row', (columns)=> {
-        entry= {}
-        columns.forEach((column)=> {
-            if (column.value === null) {
-                console.log('NULL');
-            }
-
-            else {
-
-                entry[column.metadata.colName] = column.value
-
-            }
-
-
-        })
-        result.push(entry)
+    const ip = req.body.ip
+    const site = req.body.site
+    console.log("Before request")
+    let request = new Request("INSERT into SiteData(ip, site) values (@ip , @site);", (err) => {
+        if (err) {
+            console.log(err);
+        }
     });
-    request.on('requestCompleted',(rowCount,more)=>{
-        res.send(result)
+    request.addParameter('ip', TYPES.VarChar, ip);
+    request.addParameter('site', TYPES.VarChar, site);
+    console.log("Before writing file")
+
+    request.on('row', (columns) => {
+
+        columns.forEach((column) => {
+            if (column.value == NULL)
+                console.log("NULL")
+            else console.log(column.value + "is inserted")
+        })
+    })
+    console.log("After request on")
+    connection.execSql(request);
+    let content = ip + " " + site + "\r\n"
+    fs.access(config.filepath, (err) => {
+
+        if (err) {
+            fs.writeFile(config.filepath, content, (err) => {
+                if (err) return console.log(err)
+                console.log("after writefile")
+            })
+        } else {
+            fs.appendFile(config.filepath, content, (err) => {
+                if (err) return console.log(err)
+                else console.log('Appended')
+            })
+        }
+
     })
 
-    connection.execSql(request);
+})
+//============================================POST REQUEST CLOSED============================================
+app.get('/showSearch', (req, res) => {
+    if (req.query.value == "site") {
+        let query = 'Select * from SiteData where site like \'%' + req.query.searchWord + '%\''
+
+        let request = new Request(query, (err) => {
+            if (err)
+                console.log(err)
+
+        })
+
+        let result = [];
+        request.on('row', (columns) => {
+            entry = {}
+            columns.forEach((column) => {
+                if (column.value === null) {
+                    console.log('NULL');
+                } else {
+
+                    entry[column.metadata.colName] = column.value
+
+                }
+
+
+            })
+            result.push(entry)
+        });
+        request.on('requestCompleted', (rowCount, more) => {
+            res.send(result)
+        })
+
+        connection.execSql(request);
+
+
+    }
+    else if(req.query.value == "ip"){
+        let query = 'Select * from SiteData where ip like \'%' + req.query.searchWord + '%\''
+
+        let request = new Request(query, (err) => {
+            if (err)
+                console.log(err)
+
+        })
+
+        let result = [];
+        request.on('row', (columns) => {
+            entry = {}
+            columns.forEach((column) => {
+                if (column.value === null) {
+                    console.log('NULL');
+                } else {
+
+                    entry[column.metadata.colName] = column.value
+
+                }
+
+
+            })
+            result.push(entry)
+        });
+        request.on('requestCompleted', (rowCount, more) => {
+            res.send(result)
+        })
+
+        connection.execSql(request);
+
+
+    }
+
+
 })
 
 //=====================================GET REQUEST for displaying table=====================================================
 
-app.get('/show', (req,res)=>
-{
-    let request = new Request('Select * from SiteData', (err)=>{
+app.get('/show', (req, res) => {
+    let request = new Request('Select * from SiteData', (err) => {
         if (err)
             console.log(err)
 
-})
+    })
     let result = [];
-    request.on('row', (columns)=> {
-        entry= {}
-        columns.forEach((column)=> {
+    request.on('row', (columns) => {
+        entry = {}
+        columns.forEach((column) => {
             if (column.value === null) {
                 console.log('NULL');
-            }
-
-            else {
+            } else {
 
                 entry[column.metadata.colName] = column.value
 
@@ -120,7 +156,7 @@ app.get('/show', (req,res)=>
         })
         result.push(entry)
     });
-    request.on('requestCompleted',(rowCount,more)=>{
+    request.on('requestCompleted', (rowCount, more) => {
         res.send(result)
     })
 
@@ -151,30 +187,28 @@ app.get('/show', (req,res)=>
 })*/
 //============================================END OF PUT REQUEST==========================================
 
-app.delete('/delete/:id',(req,res)=>{
+app.delete('/delete/:id', (req, res) => {
     const id = req.params.id
 
-    let delRequest = new Request("DELETE from SiteData where id = @id",(err,result)=> {
+    let delRequest = new Request("DELETE from SiteData where id = @id", (err, result) => {
         if (err)
             console.log(err)
     })
-    delRequest.addParameter('id',TYPES.Int, id)
-    delRequest.on('requestCompleted',(rowCount,more)=>{
+    delRequest.addParameter('id', TYPES.Int, id)
+    delRequest.on('requestCompleted', (rowCount, more) => {
         //res.send()
-        let retrieve = new Request('Select * from SiteData', (err)=>{
+        let retrieve = new Request('Select * from SiteData', (err) => {
             if (err)
                 console.log(err)
 
         })
         let data = [];
-        retrieve.on('row', (columns)=> {
-            entry= {}
-            columns.forEach((column)=> {
+        retrieve.on('row', (columns) => {
+            entry = {}
+            columns.forEach((column) => {
                 if (column.value === null) {
                     console.log('NULL');
-                }
-
-                else {
+                } else {
 
                     entry[column.metadata.colName] = column.value
 
@@ -184,17 +218,17 @@ app.delete('/delete/:id',(req,res)=>{
             })
             data.push(entry)
         });
-        retrieve.on("requestCompleted",(rowCount,more)=>{
-                res.send(data)
+        retrieve.on("requestCompleted", (rowCount, more) => {
+            res.send(data)
             fs.access(config.filepath, (err) => {
                 console.log(data)
                 let allData, togData
-                data.map((item)=>{
-                    allData = [item.ip,item.site].join(" ")
-                    if (togData == undefined)
-                    { console.log("HAHA")
-                        togData = allData + "\r\n"}
-                    else
+                data.map((item) => {
+                    allData = [item.ip, item.site].join(" ")
+                    if (togData == undefined) {
+                        console.log("HAHA")
+                        togData = allData + "\r\n"
+                    } else
                         togData += allData + "\r\n"
 
                 })
@@ -211,17 +245,12 @@ app.delete('/delete/:id',(req,res)=>{
 
     })
 
-   connection.execSql(delRequest)
-
-
-
-
-
+    connection.execSql(delRequest)
 
 
 })
 //=========================================LISTENING PORT FOR BACKEND========================================
-    app.listen(3001, () => {
+app.listen(3001, () => {
     console.log("This port is listening")
 })
 //===========================================================================================================
