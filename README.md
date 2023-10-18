@@ -6,3 +6,6 @@ I made an application that helps
   * to insert the text entered in input into the database
   * updates the hosts file.
   * adds or removes the text from hosts file.
+
+Front end was done in react js.<br/>
+Backend was done in node js.
